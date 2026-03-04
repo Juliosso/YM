@@ -11,21 +11,6 @@
             font-family: 'Georgia', serif; overflow: hidden; color: #d4c4a8;
         }
 
-        /* --- START SCHERM --- */
-        #start-scherm {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: #000; z-index: 500; display: flex; flex-direction: column;
-            justify-content: center; align-items: center; transition: opacity 1s;
-        }
-        #start-scherm.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
-        
-        .pulse-tekst {
-            border: 1px solid rgba(212, 196, 168, 0.5); color: #d4c4a8; padding: 15px 40px;
-            font-family: 'Segoe UI', sans-serif; font-size: 20px; text-transform: uppercase;
-            letter-spacing: 2px; cursor: pointer; animation: pulse 2s infinite; border-radius: 4px;
-        }
-        @keyframes pulse { 0%, 100% { opacity: 0.6; } 50% { opacity: 1; box-shadow: 0 0 15px rgba(212, 196, 168, 0.2); } }
-
         /* --- DE SCREENSAVER --- */
         .container {
             position: relative; width: 100vw; height: 100vh;
@@ -36,8 +21,8 @@
             height: 90vh; 
             max-width: 90vw;
             object-fit: contain;
-            opacity: 1; /* Opacity op 1 voor betere zichtbaarheid van eigen foto */
-            transition: opacity 2s ease-in-out; /* Boterzachte overgang bij wissel */
+            opacity: 1; 
+            transition: opacity 2s ease-in-out; /* Boterzachte overgang */
         }
 
         /* Tekst overlay */
@@ -54,8 +39,6 @@
 </head>
 <body>
 
-    
-
     <div class="container">
         <img id="shroud" class="wade-img" src="ShroudFotoP.png" alt="Gezicht op de Lijkwade">
         
@@ -70,7 +53,6 @@
         const tekst = document.getElementById('tekst');
         const hoofdtekst = document.getElementById('hoofdtekst');
         const subtekst = document.getElementById('subtekst');
-        const startScherm = document.getElementById('start-scherm');
 
         let isNegative = false;
 
@@ -83,11 +65,11 @@
                 
                 // Wissel naar de juiste afbeelding
                 if (isNegative) {
-                    shroud.src = "ShroudFotoN.png"; // Jouw ingevoegde negatief-afbeelding
+                    shroud.src = "ShroudFotoN.png"; 
                     hoofdtekst.innerText = "Het Fotografisch Negatief";
                     subtekst.innerText = "...onthult het ware gezicht (Ontdekt in 1898)";
                 } else {
-                    shroud.src = "ShroudFotoP.png"; // Jouw normale afbeelding
+                    shroud.src = "ShroudFotoP.png"; 
                     hoofdtekst.innerText = "De Lijkwade van Turijn";
                     subtekst.innerText = "Wat we zien met het blote oog...";
                 }
@@ -97,14 +79,14 @@
             }, 2000); 
         }
 
-        function startScreensaver() {
-            startScherm.classList.add('hidden');
+        // DIT IS DE FIX: Start automatisch als de pagina laadt!
+        window.onload = () => {
+            // Wacht 3 seconden rustig af, en start dan de oneindige loop
             setTimeout(() => {
                 toggleNegative();
-                setInterval(toggleNegative, 12000); // Elke 10 sec wisselen voor rustig effect
-            }, 2000);
-        }
+                setInterval(toggleNegative, 12000); // Elke 12 sec wisselen
+            }, 3000);
+        };
     </script>
 </body>
 </html>
-
