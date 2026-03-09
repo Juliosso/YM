@@ -2,7 +2,7 @@
 <html lang="nl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Lijkwade van Turijn - Reveal</title>
     <style>
         body {
@@ -11,6 +11,10 @@
             background: radial-gradient(circle at center, #4a331c 0%, #2b1d0e 50%, #120c05 100%);
             display: flex; flex-direction: column; justify-content: center; align-items: center;
             font-family: 'Georgia', serif; overflow: hidden; color: #d4c4a8;
+            /* Anti-selectie voor kiosk schermen */
+            touch-action: manipulation; 
+            -webkit-user-select: none; 
+            user-select: none;
         }
 
         /* --- DE SCREENSAVER --- */
@@ -27,7 +31,7 @@
             transition: opacity 2s ease-in-out; 
         }
 
-        /* Tekst overlay - Terug naar de chique, originele stijl */
+        /* Tekst overlay */
         .tekst-overlay {
             position: absolute; bottom: 8%; text-align: center; letter-spacing: 3px;
             transition: opacity 2s ease-in-out;
@@ -38,7 +42,7 @@
         h1 { font-size: 34px; font-weight: normal; text-transform: uppercase; margin-bottom: 5px; color: #fff; }
         p { font-size: 20px; font-style: italic; color: #d4c4a8; margin-top: 0; }
 
-        /* --- DE QR CODE BOX - Blijft lekker groot en scanbaar --- */
+        /* --- DE QR CODE BOX --- */
         .qr-box {
             position: absolute;
             top: 40px;
@@ -70,9 +74,20 @@
             padding: 10px;
             border-radius: 10px;
         }
+
+        /* --- Geheime Beheerder functionaliteit --- */
+        .geheime-knop { position: absolute; top: 0; right: 0; width: 150px; height: 150px; z-index: 999; cursor: default; }
+        .admin-menu { display: none; position: absolute; top: 20px; left: 20px; background-color: rgba(30, 41, 59, 0.95); padding: 25px; border-radius: 16px; box-shadow: 0 15px 40px rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.1); z-index: 1000; min-width: 250px; backdrop-filter: blur(10px); font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;}
+        .admin-btn { background-color: #334155; color: #f8fafc; border: none; padding: 12px 15px; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: bold; margin-bottom: 12px; display: block; width: 100%; transition: background 0.2s;}
+        .admin-btn:hover { background-color: #475569; }
+        .admin-btn.geel { background-color: #d97706; margin-bottom: 20px; } 
+        .admin-btn.geel:hover { background-color: #b45309; }
+
     </style>
 </head>
-<body>
+<body onclick="startFullscreen()" oncontextmenu="return false;">
+
+    <div class="geheime-knop" onclick="checkGeheimeKlik(event)"></div>
 
     <div class="container">
         <img id="shroud" class="wade-img" src="ShroudFotoP.png" alt="Gezicht op de Lijkwade">
@@ -88,7 +103,15 @@
         <img src="YMK_QR.png" alt="Scan QR om ons kanaal te joinen">
     </div>
 
+    <div class="admin-menu" id="admin-menu">
+        <strong style="display: block; margin-bottom: 20px; color: #d4c4a8; font-size: 20px; font-weight: 400; text-transform: uppercase;">Beheerdersmenu</strong>
+        
+        <button class="admin-btn geel" id="fullscreen-btn" onclick="toggleFullscreen()">🔲 Uit Fullscreen gaan</button>
+        <button class="admin-btn" onclick="sluitAdmin()">❌ Sluit Paneel</button>
+    </div>
+
     <script>
+        // --- Beeld Wissel Logica ---
         const shroud = document.getElementById('shroud');
         const tekst = document.getElementById('tekst');
         const hoofdtekst = document.getElementById('hoofdtekst');
@@ -124,6 +147,54 @@
                 setInterval(toggleNegative, 25000); 
             }, 3000);
         };
+
+        // --- Fullscreen & Admin Logica ---
+        let hasStartedFullscreen = false;
+
+        function startFullscreen() {
+            if (!hasStartedFullscreen) {
+                let elem = document.documentElement;
+                if (elem.requestFullscreen) { elem.requestFullscreen(); }
+                else if (elem.webkitRequestFullscreen) { elem.webkitRequestFullscreen(); } 
+                else if (elem.msRequestFullscreen) { elem.msRequestFullscreen(); } 
+                hasStartedFullscreen = true;
+            }
+        }
+
+        function toggleFullscreen() {
+            if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+                let elem = document.documentElement;
+                if (elem.requestFullscreen) { elem.requestFullscreen(); }
+                else if (elem.webkitRequestFullscreen) { elem.webkitRequestFullscreen(); }
+                document.getElementById('fullscreen-btn').innerText = "🔲 Uit Fullscreen gaan";
+            } else {
+                if (document.exitFullscreen) { document.exitFullscreen(); }
+                else if (document.webkitExitFullscreen) { document.webkitExitFullscreen(); }
+                document.getElementById('fullscreen-btn').innerText = "🔲 In Fullscreen gaan";
+                hasStartedFullscreen = false; 
+            }
+        }
+
+        let klikTeller = 0;
+        let klikTimer;
+
+        function checkGeheimeKlik(event) {
+            event.stopPropagation(); 
+            klikTeller++;
+            clearTimeout(klikTimer);
+            klikTimer = setTimeout(() => { klikTeller = 0; }, 2000);
+
+            if (klikTeller >= 5) {
+                klikTeller = 0; 
+                let pin = prompt("Pincode (Beheer):");
+                if (pin === "0000") {
+                    document.getElementById('admin-menu').style.display = 'block';
+                }
+            }
+        }
+
+        function sluitAdmin() { document.getElementById('admin-menu').style.display = 'none'; }
+
     </script>
 </body>
 </html>
